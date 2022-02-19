@@ -19,6 +19,7 @@ export const ContractsContext = createContext<IContractsContext>({
   connectWallet: () => {
     return;
   },
+  // tld: "",
 });
 
 export const ContractsProvider: FunctionComponent = ({ children }) => {

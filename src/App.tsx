@@ -1,5 +1,6 @@
-import styled from "styled-components";
 import { useContracts } from "src/hooks";
+import { Form } from "src/components";
+import { Container, Header, Button } from "./styles";
 
 const App = () => {
   const { connectWallet, currentAccount } = useContracts();
@@ -8,7 +9,9 @@ const App = () => {
     <Container>
       <Header>🏇 Zed Run Name Service 🏇</Header>
 
-      {!currentAccount && (
+      {currentAccount ? (
+        <Form />
+      ) : (
         <Button onClick={connectWallet}>Connect Wallet</Button>
       )}
     </Container>
@@ -16,21 +19,3 @@ const App = () => {
 };
 
 export default App;
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 100vh;
-  background-color: #081018;
-  color: white;
-  align-items: center;
-  justify-content: center;
-`;
-
-const Header = styled.h1`
-  font-size: 2em;
-  font-weight: 600;
-`;
-
-const Button = styled.button``;
