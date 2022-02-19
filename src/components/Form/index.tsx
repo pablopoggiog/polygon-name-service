@@ -8,9 +8,22 @@ import {
   Input,
 } from "./styles";
 
+const TLD = "zed";
+
 export const Form: FunctionComponent = () => {
   const [domain, setDomain] = useState<string>("");
   const [record, setRecord] = useState<string>("");
+
+  const { mintDomain } = useContracts();
+
+  const onMint = () => {
+    mintDomain({
+      domain,
+      record,
+      setRecord,
+      setDomain,
+    });
+  };
 
   return (
     <Container>
@@ -21,7 +34,7 @@ export const Form: FunctionComponent = () => {
           placeholder="domain"
           onChange={(e) => setDomain(e.target.value)}
         />
-        <span> {".tld"} </span>
+        <span> .{TLD} </span>
       </InputContainer>
 
       <InputContainer>
@@ -34,11 +47,8 @@ export const Form: FunctionComponent = () => {
       </InputContainer>
 
       <ButtonsContainer>
-        <Button disabled={undefined} onClick={undefined}>
+        <Button disabled={undefined} onClick={onMint}>
           Mint
-        </Button>
-        <Button disabled={undefined} onClick={undefined}>
-          Set data
         </Button>
       </ButtonsContainer>
     </Container>

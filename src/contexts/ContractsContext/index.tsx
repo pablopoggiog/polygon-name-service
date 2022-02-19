@@ -5,33 +5,33 @@ import {
   useEffect,
   useCallback,
 } from "react";
-import { ethers, Contract } from "ethers";
-import { IContractsContext } from "src/types";
-import Domains from "src/artifacts/contracts/Domains.sol/Domains.json";
+import { ethers } from "ethers";
+import { IContractsContext, IMintDomain } from "src/types";
+import DOMAINS from "src/artifacts/contracts/Domains.sol/Domains.json";
 
 const { ethereum } = window;
 
 // using String here not to enforce the type, but to avoid using "!" (the env vars could not exist, and the type of the contants would be string | undefined)
-const contractAddress = String(process.env.REACT_APP_CONTRACT_ADDRESS);
+const CONTRACT_ADDRESS = String(process.env.REACT_APP_CONTRACT_ADDRESS);
 
 export const ContractsContext = createContext<IContractsContext>({
   currentAccount: "",
   connectWallet: () => {
     return;
   },
-  // tld: "",
+  mintDomain: () => {
+    return;
+  },
 });
 
 export const ContractsProvider: FunctionComponent = ({ children }) => {
-  const [contractWithProvider, setContractWithProvider] = useState<Contract>();
-  const [contractWithSigner, setContractWithSigner] = useState<Contract>();
   const [currentAccount, setCurrentAccount] = useState<string>("");
 
   const checkIfWalletIsConnected = useCallback(async () => {
     const accounts = await ethereum.request({
       method: "eth_accounts",
     });
-    // Users can have multiple authorized accounts, we grab the first one if its there!
+
     if (accounts.length !== 0) {
       const account = accounts[0];
       console.log("Found an authorized account:", account);
@@ -61,27 +61,64 @@ export const ContractsProvider: FunctionComponent = ({ children }) => {
     }
   };
 
-  const getContractAndSigner = async () => {
-    if (ethereum) {
-      try {
+  const mintDomain: IMintDomain = async ({
+    domain,
+    record,
+    setRecord,
+    setDomain,
+  }) => {
+    if (!domain) {
+      return;
+    }
+
+    if (domain.length < 3) {
+      alert("Domain must be at least 3 characters long");
+      return;
+    }
+
+    const price =
+      domain.length === 3 ? "0.5" : domain.length === 4 ? "0.3" : "0.1";
+    console.log("Minting domain", domain, "with price", price);
+
+    try {
+      if (ethereum) {
         const provider = new ethers.providers.Web3Provider(ethereum);
         const signer = provider.getSigner();
-        const contractWithProvider = new ethers.Contract(
-          contractAddress,
-          Domains.abi,
-          provider
-        );
-        const contractWithSigner = new ethers.Contract(
-          contractAddress,
-          Domains.abi,
+        const contract = new ethers.Contract(
+          CONTRACT_ADDRESS,
+          DOMAINS.abi,
           signer
         );
-        console.log({ contractWithProvider, contractWithSigner });
-        setContractWithProvider(contractWithProvider);
-        setContractWithSigner(contractWithSigner);
-      } catch (error) {
-        console.error(error);
+
+        console.log("Going to pop wallet now to pay gas...");
+
+        let tx = await contract.register(domain, {
+          value: ethers.utils.parseEther(price),
+        });
+
+        const receipt = await tx.wait();
+
+        // Checks if the transaction was successfully completed
+        if (receipt.status === 1) {
+          console.log(
+            "Domain minted! https://mumbai.polygonscan.com/tx/" + tx.hash
+          );
+
+          tx = contract.setRecord(domain, record);
+          await tx.wait();
+
+          console.log(
+            "Record set! https://mumbai.polygonscan.com/tx/" + tx.hash
+          );
+
+          setRecord("");
+          setDomain("");
+        } else {
+          alert("Transaction failed! Please try again");
+        }
       }
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -89,12 +126,10 @@ export const ContractsProvider: FunctionComponent = ({ children }) => {
     checkIfWalletIsConnected();
   }, [checkIfWalletIsConnected]);
 
-  // useEffect(() => {
-  //   getContractAndSigner();
-  // }, []);
-
   return (
-    <ContractsContext.Provider value={{ currentAccount, connectWallet }}>
+    <ContractsContext.Provider
+      value={{ currentAccount, connectWallet, mintDomain }}
+    >
       {children}
     </ContractsContext.Provider>
   );
