@@ -4,4 +4,7 @@ declare global {
   }
 }
 
-export interface IContractsContext {}
+export interface IContractsContext {
+  currentAccount: string;
+  connectWallet: () => void;
+}
