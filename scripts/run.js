@@ -6,11 +6,16 @@ const main = async () => {
   console.log("Contract deployed to:", domainContract.address);
   console.log("Contract deployed by:", owner.address);
 
-  const txn = await domainContract.register("doom");
+  let txn = await domainContract.register("doom");
   await txn.wait();
 
-  const domainOwner = await domainContract.getAddress("doom");
-  console.log("Owner of domain:", domainOwner);
+  const domainAddress = await domainContract.getAddress("doom");
+  console.log("Owner of domain doom:", domainAddress);
+
+  txn = await domainContract
+    .connect(randomPerson)
+    .setRecord("doom", "Haha my domain now!");
+  await txn.wait();
 };
 
 const runMain = async () => {
