@@ -5,7 +5,8 @@ export const Container = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1em;
+  gap: 3em;
+  height: 100%;
 `;
 
 export const ButtonsContainer = styled.div`
@@ -13,6 +14,7 @@ export const ButtonsContainer = styled.div`
   align-items: center;
   justify-content: center;
   gap: 1em;
+  width: 100%;
 `;
 
 export const InputContainer = styled.div`
@@ -25,7 +27,8 @@ export const InputContainer = styled.div`
   width: 100%;
 
   & > * {
-    padding: 10px;
+    padding: 14px;
+    font-size: 16px;
     color: white;
     background: black;
     border: none;
@@ -35,8 +38,19 @@ export const InputContainer = styled.div`
 
 export const Button = styled.button`
   border-radius: 1em;
-  padding: 0.6em;
+  padding: 14px;
   cursor: pointer;
+  background: rgba(130, 71, 229, 0.7);
+  width: 100%;
+  border: none;
+  color: white;
+  font-size: 16px;
+
+  &:hover {
+    background: white;
+    color: black;
+    transition: 0.5s;
+  }
 `;
 
 export const Input = styled.input`

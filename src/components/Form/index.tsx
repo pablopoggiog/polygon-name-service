@@ -30,6 +30,7 @@ export const Form: FunctionComponent = () => {
       <InputContainer>
         <Input
           type="text"
+          maxLength={10}
           value={domain}
           placeholder="domain"
           onChange={(e) => setDomain(e.target.value)}
@@ -40,6 +41,7 @@ export const Form: FunctionComponent = () => {
       <InputContainer>
         <Input
           type="text"
+          maxLength={20}
           value={record}
           placeholder="what's ur zed power"
           onChange={(e) => setRecord(e.target.value)}
