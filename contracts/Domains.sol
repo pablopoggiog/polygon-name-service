@@ -38,6 +38,11 @@ contract Domains is ERC721URIStorage {
     mapping(string => address) public domains;
 
     /**
+     * @notice - Stores all the domains' names, indexed by token ID.
+     */
+    mapping(uint256 => string) public names;
+
+    /**
      * @notice - Stores records for domains, indexed by domain's name.
      */
     mapping(string => string) public records;
@@ -133,6 +138,7 @@ contract Domains is ERC721URIStorage {
         _setTokenURI(newRecordId, finalTokenUri);
 
         domains[name] = msg.sender;
+        names[newRecordId] = name;
 
         _tokenIds.increment();
     }
@@ -171,6 +177,21 @@ contract Domains is ERC721URIStorage {
         returns (string memory)
     {
         return records[name];
+    }
+
+    /**
+     * @notice - Provides a list of all the domain names.
+     * @return - The list of all the domain names.
+     */
+    function getAllNames() public view returns (string[] memory) {
+        console.log("Getting all names from contract");
+        string[] memory allNames = new string[](_tokenIds.current());
+        for (uint256 i = 0; i < _tokenIds.current(); i++) {
+            allNames[i] = names[i];
+            console.log("Name for token %d is %s", i, allNames[i]);
+        }
+
+        return allNames;
     }
 
     /**
