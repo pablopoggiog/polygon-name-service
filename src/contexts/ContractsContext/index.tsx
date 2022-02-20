@@ -8,7 +8,7 @@ import {
 import { ethers } from "ethers";
 import { IContractsContext, IMintDomain, Network } from "src/types";
 import DOMAINS from "src/artifacts/contracts/Domains.sol/Domains.json";
-import { networks } from "src/utils/networks";
+import { networks, mumbaiNetwork } from "src/utils/networks";
 
 const { ethereum } = window;
 
@@ -133,6 +133,37 @@ export const ContractsProvider: FunctionComponent = ({ children }) => {
       }
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const switchNetwork = async () => {
+    if (window.ethereum) {
+      try {
+        // Switch to the Mumbai testnet
+        await window.ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: "0x13881" }],
+        });
+      } catch (error: any) {
+        // This error code means that the chain we want has not been added to MetaMask
+        // In this case we ask the user to add it to their MetaMask
+        if (error.code === 4902) {
+          try {
+            await window.ethereum.request({
+              method: "wallet_addEthereumChain",
+              params: [mumbaiNetwork],
+            });
+          } catch (error) {
+            console.log(error);
+          }
+        }
+        console.log(error);
+      }
+    } else {
+      // If window.ethereum is not found then MetaMask is not installed
+      alert(
+        "MetaMask is not installed. Please install it to use this app: https://metamask.io/download.html"
+      );
     }
   };
 
