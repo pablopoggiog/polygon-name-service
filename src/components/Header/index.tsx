@@ -1,7 +1,8 @@
-import { FunctionComponent, useState } from "react";
+import { FunctionComponent } from "react";
 import { useContracts } from "src/hooks";
 import polygonLogo from "src/assets/polygonlogo.png";
 import ethLogo from "src/assets/ethlogo.png";
+import question from "src/assets/question.png";
 import { Container, Title, Image, WalletStatus } from "./styles";
 
 export const Header: FunctionComponent = () => {
@@ -13,7 +14,13 @@ export const Header: FunctionComponent = () => {
       <WalletStatus>
         <Image
           alt="Network logo"
-          src={network.includes("Polygon") ? polygonLogo : ethLogo}
+          src={
+            network.includes("Polygon")
+              ? polygonLogo
+              : network
+              ? ethLogo
+              : question
+          }
         />
         {currentAccount ? (
           <p>
