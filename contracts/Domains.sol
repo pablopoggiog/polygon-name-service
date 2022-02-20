@@ -77,11 +77,19 @@ contract Domains is ERC721URIStorage {
         }
     }
 
+    modifier isValidName(string calldata name) {
+        require(
+            StringUtils.strlen(name) >= 3 && StringUtils.strlen(name) <= 10,
+            "Names can have between 3 and 10 chars"
+        );
+        _;
+    }
+
     /**
      * @notice - Registers a domain name, mapping it to the caller's address.
      * @param name - The name for the domain to be registered.
      */
-    function register(string calldata name) public payable {
+    function register(string calldata name) public payable isValidName(name) {
         require(domains[name] == address(0), "Name is already in use");
 
         uint256 _price = getPrice(name);
