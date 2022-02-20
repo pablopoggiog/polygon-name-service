@@ -1,18 +1,14 @@
 import { useContracts } from "src/hooks";
-import { Form, Header } from "src/components";
-import { Container, Button } from "./styles";
+import { Form, Header, Button } from "src/components";
+import { Container } from "./styles";
 
 const App = () => {
-  const { connectWallet, currentAccount } = useContracts();
+  // const { connectWallet, currentAccount } = useContracts();
 
   return (
     <Container>
       <Header />
-      {currentAccount ? (
-        <Form />
-      ) : (
-        <Button onClick={connectWallet}>Connect Wallet</Button>
-      )}
+      <Form />
     </Container>
   );
 };
