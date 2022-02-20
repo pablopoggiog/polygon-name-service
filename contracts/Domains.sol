@@ -19,7 +19,12 @@ contract Domains is ERC721URIStorage {
     Counters.Counter private _tokenIds;
 
     /**
-     * @dev - Stores the domain's TLD.
+     * @notice - Who deployed the contract.
+     */
+    address public owner;
+
+    /**
+     * @notice - Stores the domain's TLD.
      */
     string public tld;
 
@@ -38,13 +43,14 @@ contract Domains is ERC721URIStorage {
     mapping(string => string) public records;
 
     /**
-     * @dev - Sets the value for `tld` and logs it to the console.
+     * @dev - Sets the value of `owner` to who's deploying the contract, `tld` to the param `_tld_` and logs it to the console.
      * @param _tld - The value to be set for `tld`.
      */
     constructor(string memory _tld)
         payable
         ERC721("Zed Run Name Service", "ZNS")
     {
+        owner = payable(msg.sender);
         tld = _tld;
         console.log("%s name service deployed", _tld);
     }
@@ -125,6 +131,7 @@ contract Domains is ERC721URIStorage {
 
         _safeMint(msg.sender, newRecordId);
         _setTokenURI(newRecordId, finalTokenUri);
+
         domains[name] = msg.sender;
 
         _tokenIds.increment();
@@ -154,7 +161,7 @@ contract Domains is ERC721URIStorage {
     }
 
     /**
-     * @notice - returns a record stored for a specific domain name.
+     * @notice - Provides the record stored for a specific domain name.
      * @param name - The domain's name.
      * @return - The record stored in that domain.
      */
@@ -164,5 +171,23 @@ contract Domains is ERC721URIStorage {
         returns (string memory)
     {
         return records[name];
+    }
+
+    /**
+     * @dev - Requires the caller to be the contract's owner.
+     */
+    modifier onlyOwner() {
+        require(msg.sender == owner);
+        _;
+    }
+
+    /**
+     * @notice - Withdraws the contract's balance, only valid for the owner.
+     */
+    function withdraw() public onlyOwner {
+        uint256 amount = address(this).balance;
+
+        (bool success, ) = msg.sender.call{value: amount}("");
+        require(success, "Failed to withdraw Matic");
     }
 }
