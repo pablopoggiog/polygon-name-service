@@ -7,6 +7,7 @@ export const Container = styled.div`
   justify-content: center;
   gap: 3em;
   height: 100%;
+  padding: 2rem;
 `;
 
 export const ButtonsContainer = styled.div`
@@ -28,7 +29,7 @@ export const InputContainer = styled.div`
 
   & > * {
     padding: 14px;
-    font-size: 16px;
+    font-size: 1em;
     color: white;
     background: black;
     border: none;
@@ -36,23 +37,16 @@ export const InputContainer = styled.div`
   }
 `;
 
-export const Button = styled.button`
-  border-radius: 1em;
-  padding: 14px;
-  cursor: pointer;
-  background: rgba(130, 71, 229, 0.7);
-  width: 100%;
-  border: none;
-  color: white;
-  font-size: 16px;
-
-  &:hover {
-    background: white;
-    color: black;
-    transition: 0.5s;
-  }
-`;
-
 export const Input = styled.input`
   width: 100%;
+`;
+
+export const SwitchNetwork = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+
+  p {
+    text-align: center;
+  }
 `;

@@ -1,11 +1,12 @@
 import { FunctionComponent, useState } from "react";
 import { useContracts } from "src/hooks";
+import { Button } from "src/components";
 import {
   Container,
   ButtonsContainer,
-  Button,
   InputContainer,
   Input,
+  SwitchNetwork,
 } from "./styles";
 
 const TLD = "zed";
@@ -14,7 +15,7 @@ export const Form: FunctionComponent = () => {
   const [domain, setDomain] = useState<string>("");
   const [record, setRecord] = useState<string>("");
 
-  const { mintDomain, network } = useContracts();
+  const { mintDomain, network, switchNetwork } = useContracts();
 
   const onMint = () => {
     mintDomain({
@@ -28,9 +29,10 @@ export const Form: FunctionComponent = () => {
   return (
     <Container>
       {network !== "Polygon Mumbai Testnet" ? (
-        <div>
+        <SwitchNetwork>
           <p>Please connect to the Polygon Mumbai Testnet</p>
-        </div>
+          <Button onClick={switchNetwork}>Click here to switch</Button>
+        </SwitchNetwork>
       ) : (
         <>
           <InputContainer>
