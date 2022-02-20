@@ -1,14 +1,13 @@
 import { useContracts } from "src/hooks";
-import { Form } from "src/components";
-import { Container, Header, Button } from "./styles";
+import { Form, Header } from "src/components";
+import { Container, Button } from "./styles";
 
 const App = () => {
   const { connectWallet, currentAccount } = useContracts();
 
   return (
     <Container>
-      <Header>🏇 Zed Run Name Service 🏇</Header>
-
+      <Header />
       {currentAccount ? (
         <Form />
       ) : (

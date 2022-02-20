@@ -8,7 +8,6 @@ export const Container = styled.div`
   background-color: #081018;
   color: white;
   align-items: center;
-  justify-content: center;
 `;
 
 export const Header = styled.h1`

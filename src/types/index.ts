@@ -1,3 +1,5 @@
+import { networks } from "src/utils/networks";
+
 declare global {
   interface Window {
     ethereum?: any;
@@ -8,6 +10,7 @@ export interface IContractsContext {
   currentAccount: string;
   connectWallet: () => void;
   mintDomain: IMintDomain;
+  network: string;
 }
 
 export type IMintDomain = (params: {
@@ -16,3 +19,5 @@ export type IMintDomain = (params: {
   setRecord: (record: string) => void;
   setDomain: (domain: string) => void;
 }) => void;
+
+export type Network = keyof typeof networks;

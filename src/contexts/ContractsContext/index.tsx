@@ -6,8 +6,9 @@ import {
   useCallback,
 } from "react";
 import { ethers } from "ethers";
-import { IContractsContext, IMintDomain } from "src/types";
+import { IContractsContext, IMintDomain, Network } from "src/types";
 import DOMAINS from "src/artifacts/contracts/Domains.sol/Domains.json";
+import { networks } from "src/utils/networks";
 
 const { ethereum } = window;
 
@@ -22,10 +23,12 @@ export const ContractsContext = createContext<IContractsContext>({
   mintDomain: () => {
     return;
   },
+  network: "0x89",
 });
 
 export const ContractsProvider: FunctionComponent = ({ children }) => {
   const [currentAccount, setCurrentAccount] = useState<string>("");
+  const [network, setNetwork] = useState<string>("");
 
   const checkIfWalletIsConnected = useCallback(async () => {
     const accounts = await ethereum.request({
@@ -38,6 +41,17 @@ export const ContractsProvider: FunctionComponent = ({ children }) => {
       setCurrentAccount(account);
     } else {
       console.log("No authorized account found");
+    }
+
+    const chainId: Network = await ethereum.request({
+      method: "eth_chainId",
+    });
+    setNetwork(networks[chainId]);
+
+    ethereum.on("chainChanged", handleChainChanged);
+
+    function handleChainChanged(_chainId: Network) {
+      window.location.reload();
     }
   }, []);
 
@@ -128,7 +142,7 @@ export const ContractsProvider: FunctionComponent = ({ children }) => {
 
   return (
     <ContractsContext.Provider
-      value={{ currentAccount, connectWallet, mintDomain }}
+      value={{ currentAccount, connectWallet, mintDomain, network }}
     >
       {children}
     </ContractsContext.Provider>
