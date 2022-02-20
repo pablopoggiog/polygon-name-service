@@ -14,7 +14,7 @@ export const Form: FunctionComponent = () => {
   const [domain, setDomain] = useState<string>("");
   const [record, setRecord] = useState<string>("");
 
-  const { mintDomain } = useContracts();
+  const { mintDomain, network } = useContracts();
 
   const onMint = () => {
     mintDomain({
@@ -27,32 +27,40 @@ export const Form: FunctionComponent = () => {
 
   return (
     <Container>
-      <InputContainer>
-        <Input
-          type="text"
-          maxLength={10}
-          value={domain}
-          placeholder="domain"
-          onChange={(e) => setDomain(e.target.value)}
-        />
-        <span> .{TLD} </span>
-      </InputContainer>
+      {network !== "Polygon Mumbai Testnet" ? (
+        <div>
+          <p>Please connect to the Polygon Mumbai Testnet</p>
+        </div>
+      ) : (
+        <>
+          <InputContainer>
+            <Input
+              type="text"
+              maxLength={10}
+              value={domain}
+              placeholder="domain"
+              onChange={(e) => setDomain(e.target.value)}
+            />
+            <span> .{TLD} </span>
+          </InputContainer>
 
-      <InputContainer>
-        <Input
-          type="text"
-          maxLength={20}
-          value={record}
-          placeholder="what's ur zed power"
-          onChange={(e) => setRecord(e.target.value)}
-        />
-      </InputContainer>
+          <InputContainer>
+            <Input
+              type="text"
+              maxLength={20}
+              value={record}
+              placeholder="what's ur zed power"
+              onChange={(e) => setRecord(e.target.value)}
+            />
+          </InputContainer>
 
-      <ButtonsContainer>
-        <Button disabled={undefined} onClick={onMint}>
-          Mint
-        </Button>
-      </ButtonsContainer>
+          <ButtonsContainer>
+            <Button disabled={undefined} onClick={onMint}>
+              Mint
+            </Button>
+          </ButtonsContainer>
+        </>
+      )}
     </Container>
   );
 };
