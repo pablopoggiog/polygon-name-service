@@ -24,6 +24,9 @@ export const ContractsContext = createContext<IContractsContext>({
     return;
   },
   network: "0x89",
+  switchNetwork: () => {
+    return;
+  },
 });
 
 export const ContractsProvider: FunctionComponent = ({ children }) => {
@@ -46,11 +49,11 @@ export const ContractsProvider: FunctionComponent = ({ children }) => {
     const chainId: Network = await ethereum.request({
       method: "eth_chainId",
     });
-    setNetwork(networks[chainId]);
+    setNetwork(networks[chainId] || "");
 
     ethereum.on("chainChanged", handleChainChanged);
 
-    function handleChainChanged(_chainId: Network) {
+    function handleChainChanged(_chainId: Network | string) {
       window.location.reload();
     }
   }, []);
@@ -137,19 +140,19 @@ export const ContractsProvider: FunctionComponent = ({ children }) => {
   };
 
   const switchNetwork = async () => {
-    if (window.ethereum) {
+    if (ethereum) {
       try {
         // Switch to the Mumbai testnet
-        await window.ethereum.request({
+        await ethereum.request({
           method: "wallet_switchEthereumChain",
-          params: [{ chainId: "0x13881" }],
+          params: [{ chainId: mumbaiNetwork.chainId }],
         });
       } catch (error: any) {
         // This error code means that the chain we want has not been added to MetaMask
         // In this case we ask the user to add it to their MetaMask
         if (error.code === 4902) {
           try {
-            await window.ethereum.request({
+            await ethereum.request({
               method: "wallet_addEthereumChain",
               params: [mumbaiNetwork],
             });
@@ -173,7 +176,13 @@ export const ContractsProvider: FunctionComponent = ({ children }) => {
 
   return (
     <ContractsContext.Provider
-      value={{ currentAccount, connectWallet, mintDomain, network }}
+      value={{
+        currentAccount,
+        connectWallet,
+        mintDomain,
+        network,
+        switchNetwork,
+      }}
     >
       {children}
     </ContractsContext.Provider>

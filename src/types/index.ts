@@ -11,6 +11,7 @@ export interface IContractsContext {
   connectWallet: () => void;
   mintDomain: IMintDomain;
   network: string;
+  switchNetwork: () => void;
 }
 
 export type IMintDomain = (params: {
