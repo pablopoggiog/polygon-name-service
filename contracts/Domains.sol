@@ -77,6 +77,10 @@ contract Domains is ERC721URIStorage {
         }
     }
 
+    /**
+     * @dev - Requires the caller to be the contract's owner.
+     * @param name - The name for the domain to be validated.
+     */
     modifier isValidName(string calldata name) {
         require(
             StringUtils.strlen(name) >= 3 && StringUtils.strlen(name) <= 10,
@@ -86,7 +90,7 @@ contract Domains is ERC721URIStorage {
     }
 
     /**
-     * @notice - Registers a domain name, mapping it to the caller's address.
+     * @notice - Registers a domain name after checking it's valid, mapping it to the caller's address.
      * @param name - The name for the domain to be registered.
      */
     function register(string calldata name) public payable isValidName(name) {
