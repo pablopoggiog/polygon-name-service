@@ -8,9 +8,8 @@ import {
 import { ethers } from "ethers";
 import {
   IContractsContext,
-  MintDomain,
+  MintOrUpdateDomain,
   Network,
-  UpdateDomain,
   IRecord,
 } from "src/types";
 import { CONTRACT_ADDRESS } from "src/constants";
@@ -35,12 +34,14 @@ export const ContractsContext = createContext<IContractsContext>({
     return;
   },
   mints: [],
+  isLoadingDomains: false,
 });
 
 export const ContractsProvider: FunctionComponent = ({ children }) => {
   const [currentAccount, setCurrentAccount] = useState<string>("");
   const [network, setNetwork] = useState<string>("");
   const [mints, setMints] = useState<IRecord[]>([]);
+  const [isLoadingDomains, setIsLoadingDomains] = useState<boolean>(false);
 
   const checkIfWalletIsConnected = useCallback(async () => {
     const accounts = await ethereum.request({
@@ -89,13 +90,14 @@ export const ContractsProvider: FunctionComponent = ({ children }) => {
     }
   };
 
-  const mintDomain: MintDomain = async ({
+  const mintDomain: MintOrUpdateDomain = async ({
     domain,
     record,
     setRecord,
     setDomain,
+    setIsLoading,
   }) => {
-    if (!domain) {
+    if (!domain || !record) {
       return;
     }
 
@@ -103,6 +105,8 @@ export const ContractsProvider: FunctionComponent = ({ children }) => {
       alert("Domain must be at least 3 characters long");
       return;
     }
+
+    setIsLoading(true);
 
     const price =
       domain.length === 3 ? "0.5" : domain.length === 4 ? "0.3" : "0.1";
@@ -150,6 +154,8 @@ export const ContractsProvider: FunctionComponent = ({ children }) => {
     } catch (error) {
       console.log(error);
     }
+
+    setIsLoading(false);
   };
 
   const switchNetwork = async () => {
@@ -184,6 +190,8 @@ export const ContractsProvider: FunctionComponent = ({ children }) => {
   };
 
   const fetchMints = async () => {
+    setIsLoadingDomains(true);
+
     try {
       if (ethereum) {
         const provider = new ethers.providers.Web3Provider(ethereum);
@@ -216,9 +224,11 @@ export const ContractsProvider: FunctionComponent = ({ children }) => {
     } catch (error) {
       console.log(error);
     }
+
+    setIsLoadingDomains(false);
   };
 
-  const updateDomain: UpdateDomain = async ({
+  const updateDomain: MintOrUpdateDomain = async ({
     record,
     domain,
     setIsLoading,
@@ -268,6 +278,7 @@ export const ContractsProvider: FunctionComponent = ({ children }) => {
         switchNetwork,
         updateDomain,
         mints,
+        isLoadingDomains,
       }}
     >
       {children}

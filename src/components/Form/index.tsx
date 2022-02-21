@@ -1,6 +1,6 @@
 import { FunctionComponent, useState } from "react";
 import { useContracts } from "src/hooks";
-import { Button } from "src/components";
+import { Button, Spinner, Modal } from "src/components";
 import { CONTRACT_ADDRESS, TLD } from "src/constants";
 import editIcon from "src/assets/edit.png";
 import {
@@ -35,16 +35,17 @@ export const Form: FunctionComponent = () => {
     connectWallet,
     updateDomain,
     mints,
+    isLoadingDomains,
   } = useContracts();
 
-  const handleMint = () => {
+  const handleMint = () =>
     mintDomain({
       domain,
       record,
       setRecord,
       setDomain,
+      setIsLoading,
     });
-  };
 
   const handleUpdateDomain = () =>
     updateDomain({
@@ -97,13 +98,13 @@ export const Form: FunctionComponent = () => {
                 {isEditing ? (
                   <>
                     <Button disabled={isLoading} onClick={handleUpdateDomain}>
-                      Set record
+                      {isLoading ? "Setting record" : "Set record"}
                     </Button>
                     <Button onClick={() => setIsEditing(false)}>Cancel</Button>
                   </>
                 ) : (
                   <Button disabled={!domain || !record} onClick={handleMint}>
-                    Mint
+                    {isLoading ? "Minting" : "Mint"}
                   </Button>
                 )}
               </ButtonsContainer>
@@ -114,36 +115,39 @@ export const Form: FunctionComponent = () => {
         )}
       </FormBody>
 
+      {isLoadingDomains && <Spinner />}
+
       {currentAccount && mints.length > 0 && (
         <DomainsContainer>
           <Subtitle> Recently minted domains!</Subtitle>
           <DomainsList>
-            {mints.map((mint, index) => (
-              <Domain key={mint.id}>
+            {mints.map(({ id, name, owner, record }) => (
+              <Domain key={id}>
                 <Row>
                   <Link
-                    href={`https://testnets.opensea.io/assets/mumbai/${CONTRACT_ADDRESS}/${mint.id}`}
+                    href={`https://testnets.opensea.io/assets/mumbai/${CONTRACT_ADDRESS}/${id}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     <Name>
-                      {mint.name}.{TLD}
+                      {name}.{TLD}
                     </Name>
                   </Link>
                   {/* Only editable being the owner */}
-                  {mint.owner.toLowerCase() ===
-                    currentAccount.toLowerCase() && (
-                    <EditButton onClick={() => editRecord(mint.name)}>
+                  {owner.toLowerCase() === currentAccount.toLowerCase() && (
+                    <EditButton onClick={() => editRecord(name)}>
                       <Image width="100%" src={editIcon} alt="Edit button" />
                     </EditButton>
                   )}
                 </Row>
-                <p> {mint.record} </p>
+                <p> {record} </p>
               </Domain>
             ))}
           </DomainsList>
         </DomainsContainer>
       )}
+
+      <Modal isOpen={isLoading} content={<Spinner />} />
     </Container>
   );
 };

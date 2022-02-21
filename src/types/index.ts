@@ -9,21 +9,15 @@ declare global {
 export interface IContractsContext {
   currentAccount: string;
   connectWallet: () => void;
-  mintDomain: MintDomain;
+  mintDomain: MintOrUpdateDomain;
   network: string;
   switchNetwork: () => void;
-  updateDomain: UpdateDomain;
+  updateDomain: MintOrUpdateDomain;
   mints: IRecord[];
+  isLoadingDomains: boolean;
 }
 
-export type MintDomain = (params: {
-  domain: string;
-  record: string;
-  setRecord: (record: string) => void;
-  setDomain: (domain: string) => void;
-}) => void;
-
-export type UpdateDomain = (params: {
+export type MintOrUpdateDomain = (params: {
   domain: string;
   record: string;
   setRecord: (record: string) => void;

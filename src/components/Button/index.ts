@@ -20,8 +20,8 @@ interface ButtonProps {
 export const Button = styled.button<ButtonProps>`
   border-radius: 1em;
   padding: 14px;
-  cursor: pointer;
-  will-change: background-color;
+  cursor: ${({ disabled }) => !disabled && "pointer"};
+  will-change: transform;
   background: ${({ disabled }) =>
     disabled
       ? "-webkit-linear-gradient(left, rgba(105, 105, 105), rgba(105, 105, 105, 0.1))"
@@ -33,9 +33,9 @@ export const Button = styled.button<ButtonProps>`
   color: white;
   font-size: 1em;
   animation: ${gradientAnimation} 4s ease infinite;
-  transition: 0.5;
+  transition: 0.5s;
 
   &:hover {
-    transform: scale(1.02);
+    transform: ${({ disabled }) => !disabled && "scale(1.02)"};
   }
 `;
