@@ -13,11 +13,19 @@ const gradientAnimation = keyframes`
 }
 `;
 
-export const Button = styled.button`
+interface ButtonProps {
+  disabled?: boolean;
+}
+
+export const Button = styled.button<ButtonProps>`
   border-radius: 1em;
   padding: 14px;
   cursor: pointer;
-  background: -webkit-linear-gradient(left, #a200d6, rgba(130, 71, 229, 0.7));
+  will-change: background-color;
+  background: ${({ disabled }) =>
+    disabled
+      ? "-webkit-linear-gradient(left, rgba(105, 105, 105), rgba(105, 105, 105, 0.1))"
+      : "-webkit-linear-gradient(left, #a200d6, rgba(130, 71, 229, 0.6))"};
   background-size: 200% 200%;
   width: 100%;
   border: none;
@@ -25,7 +33,7 @@ export const Button = styled.button`
   color: white;
   font-size: 1em;
   animation: ${gradientAnimation} 4s ease infinite;
-  transition: 0.5s;
+  transition: 0.5;
 
   &:hover {
     transform: scale(1.02);
