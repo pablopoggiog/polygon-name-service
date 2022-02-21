@@ -10,7 +10,7 @@ export const Header: FunctionComponent = () => {
 
   return (
     <Container>
-      <Title>🏇 Zed Run Name Service 🏇</Title>
+      <Title>🏇 Zed Name Service 🏇</Title>
       <WalletStatus>
         <Image
           alt="Network logo"
