@@ -2,6 +2,7 @@ import { FunctionComponent, useState } from "react";
 import { useContracts } from "src/hooks";
 import { Button } from "src/components";
 import { CONTRACT_ADDRESS, TLD } from "src/constants";
+import editIcon from "src/assets/edit.png";
 import {
   Container,
   FormBody,
@@ -15,12 +16,16 @@ import {
   Domain,
   Link,
   Name,
+  Image,
   Row,
+  EditButton,
 } from "./styles";
 
 export const Form: FunctionComponent = () => {
   const [domain, setDomain] = useState<string>("");
   const [record, setRecord] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const {
     mintDomain,
@@ -28,6 +33,7 @@ export const Form: FunctionComponent = () => {
     switchNetwork,
     currentAccount,
     connectWallet,
+    updateDomain,
     mints,
   } = useContracts();
 
@@ -38,6 +44,12 @@ export const Form: FunctionComponent = () => {
       setRecord,
       setDomain,
     });
+  };
+
+  const editRecord = (name: string) => {
+    console.log("Editing record for", name);
+    setIsEditing(true);
+    setDomain(name);
   };
 
   return (
@@ -73,9 +85,29 @@ export const Form: FunctionComponent = () => {
               </InputContainer>
 
               <ButtonsContainer>
-                <Button disabled={undefined} onClick={mint}>
-                  Mint
-                </Button>
+                {isEditing ? (
+                  <>
+                    <Button
+                      disabled={isLoading}
+                      onClick={() =>
+                        updateDomain({
+                          domain,
+                          record,
+                          setRecord,
+                          setDomain,
+                          setIsLoading,
+                        })
+                      }
+                    >
+                      Set record
+                    </Button>
+                    <Button onClick={() => setIsEditing(false)}>Cancel</Button>
+                  </>
+                ) : (
+                  <Button disabled={undefined} onClick={mint}>
+                    Mint
+                  </Button>
+                )}
               </ButtonsContainer>
             </>
           )
@@ -101,6 +133,13 @@ export const Form: FunctionComponent = () => {
                       {mint.name}.{TLD}
                     </Name>
                   </Link>
+                  {/* Only editable being the owner */}
+                  {mint.owner.toLowerCase() ===
+                    currentAccount.toLowerCase() && (
+                    <EditButton onClick={() => editRecord(mint.name)}>
+                      <Image width="100%" src={editIcon} alt="Edit button" />
+                    </EditButton>
+                  )}
                 </Row>
                 <p> {mint.record} </p>
               </Domain>
