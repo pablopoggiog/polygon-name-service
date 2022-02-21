@@ -6,14 +6,18 @@ import {
   useCallback,
 } from "react";
 import { ethers } from "ethers";
-import { IContractsContext, IMintDomain, Network } from "src/types";
+import {
+  IContractsContext,
+  MintDomain,
+  Network,
+  UpdateDomain,
+  IRecord,
+} from "src/types";
+import { CONTRACT_ADDRESS } from "src/constants";
 import DOMAINS from "src/artifacts/contracts/Domains.sol/Domains.json";
 import { networks, mumbaiNetwork } from "src/utils/networks";
 
 const { ethereum } = window;
-
-// using String here not to enforce the type, but to avoid using "!" (the env vars could not exist, and the type of the contants would be string | undefined)
-const CONTRACT_ADDRESS = String(process.env.REACT_APP_CONTRACT_ADDRESS);
 
 export const ContractsContext = createContext<IContractsContext>({
   currentAccount: "",
@@ -27,11 +31,16 @@ export const ContractsContext = createContext<IContractsContext>({
   switchNetwork: () => {
     return;
   },
+  updateDomain: () => {
+    return;
+  },
+  mints: [],
 });
 
 export const ContractsProvider: FunctionComponent = ({ children }) => {
   const [currentAccount, setCurrentAccount] = useState<string>("");
   const [network, setNetwork] = useState<string>("");
+  const [mints, setMints] = useState<IRecord[]>([]);
 
   const checkIfWalletIsConnected = useCallback(async () => {
     const accounts = await ethereum.request({
@@ -56,6 +65,8 @@ export const ContractsProvider: FunctionComponent = ({ children }) => {
     function handleChainChanged(_chainId: Network | string) {
       window.location.reload();
     }
+
+    fetchMints();
   }, []);
 
   const connectWallet = async () => {
@@ -78,7 +89,7 @@ export const ContractsProvider: FunctionComponent = ({ children }) => {
     }
   };
 
-  const mintDomain: IMintDomain = async ({
+  const mintDomain: MintDomain = async ({
     domain,
     record,
     setRecord,
@@ -121,12 +132,14 @@ export const ContractsProvider: FunctionComponent = ({ children }) => {
             "Domain minted! https://mumbai.polygonscan.com/tx/" + tx.hash
           );
 
-          tx = contract.setRecord(domain, record);
+          tx = await contract.setRecord(domain, record);
           await tx.wait();
 
           console.log(
             "Record set! https://mumbai.polygonscan.com/tx/" + tx.hash
           );
+
+          fetchMints();
 
           setRecord("");
           setDomain("");
@@ -170,6 +183,77 @@ export const ContractsProvider: FunctionComponent = ({ children }) => {
     }
   };
 
+  const fetchMints = async () => {
+    try {
+      if (ethereum) {
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        const contract = new ethers.Contract(
+          CONTRACT_ADDRESS,
+          DOMAINS.abi,
+          signer
+        );
+
+        const names: string[] = await contract.getAllNames();
+
+        // For each name, gets the record and the address
+        const mintRecords: IRecord[] = await Promise.all(
+          names.map(async (name) => {
+            const mintRecord = await contract.records(name);
+            const owner = await contract.domains(name);
+            return {
+              id: names.indexOf(name),
+              name: name,
+              record: mintRecord,
+              owner: owner,
+            };
+          })
+        );
+
+        console.log("MINTS FETCHED ", mintRecords);
+        setMints(mintRecords);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const updateDomain: UpdateDomain = async ({
+    record,
+    domain,
+    setIsLoading,
+    setRecord,
+    setDomain,
+  }) => {
+    if (!record || !domain) return;
+
+    setIsLoading(true);
+    console.log("Updating domain", domain, "with record", record);
+
+    try {
+      if (ethereum) {
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        const contract = new ethers.Contract(
+          CONTRACT_ADDRESS,
+          DOMAINS.abi,
+          signer
+        );
+
+        const tx = await contract.setRecord(domain, record);
+        await tx.wait();
+        console.log("Record set https://mumbai.polygonscan.com/tx/" + tx.hash);
+
+        fetchMints();
+        setRecord("");
+        setDomain("");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    setIsLoading(false);
+  };
+
   useEffect(() => {
     checkIfWalletIsConnected();
   }, [checkIfWalletIsConnected]);
@@ -182,6 +266,8 @@ export const ContractsProvider: FunctionComponent = ({ children }) => {
         mintDomain,
         network,
         switchNetwork,
+        updateDomain,
+        mints,
       }}
     >
       {children}
