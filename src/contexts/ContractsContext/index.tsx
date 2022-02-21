@@ -85,6 +85,8 @@ export const ContractsProvider: FunctionComponent = ({ children }) => {
       // Boom! This should print out public address once we authorize Metamask.
       console.log("Connected", accounts[0]);
       setCurrentAccount(accounts[0]);
+
+      fetchMints();
     } catch (error) {
       console.log(error);
     }
