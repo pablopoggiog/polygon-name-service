@@ -37,7 +37,7 @@ export const Form: FunctionComponent = () => {
     mints,
   } = useContracts();
 
-  const mint = () => {
+  const handleMint = () => {
     mintDomain({
       domain,
       record,
@@ -45,6 +45,15 @@ export const Form: FunctionComponent = () => {
       setDomain,
     });
   };
+
+  const handleUpdateDomain = () =>
+    updateDomain({
+      domain,
+      record,
+      setRecord,
+      setDomain,
+      setIsLoading,
+    });
 
   const editRecord = (name: string) => {
     console.log("Editing record for", name);
@@ -87,24 +96,13 @@ export const Form: FunctionComponent = () => {
               <ButtonsContainer>
                 {isEditing ? (
                   <>
-                    <Button
-                      disabled={isLoading}
-                      onClick={() =>
-                        updateDomain({
-                          domain,
-                          record,
-                          setRecord,
-                          setDomain,
-                          setIsLoading,
-                        })
-                      }
-                    >
+                    <Button disabled={isLoading} onClick={handleUpdateDomain}>
                       Set record
                     </Button>
                     <Button onClick={() => setIsEditing(false)}>Cancel</Button>
                   </>
                 ) : (
-                  <Button disabled={undefined} onClick={mint}>
+                  <Button disabled={!domain || !record} onClick={handleMint}>
                     Mint
                   </Button>
                 )}
@@ -121,10 +119,9 @@ export const Form: FunctionComponent = () => {
           <Subtitle> Recently minted domains!</Subtitle>
           <DomainsList>
             {mints.map((mint, index) => (
-              <Domain key={index}>
+              <Domain key={mint.id}>
                 <Row>
                   <Link
-                    className="link"
                     href={`https://testnets.opensea.io/assets/mumbai/${CONTRACT_ADDRESS}/${mint.id}`}
                     target="_blank"
                     rel="noopener noreferrer"
